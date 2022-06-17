@@ -22,7 +22,7 @@ const settings = [{label: 'Profile', url: 'profile'}, {label: 'Account', url: "p
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const {isAuth} = useContext(AppContext)
+  const {isAuth} = useContext(AppContext);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
