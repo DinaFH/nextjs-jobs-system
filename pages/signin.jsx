@@ -16,9 +16,22 @@ let login= ()=>{
     const[ name , setName ]=useState("")
     const[ password , setPass ]=useState("")
     const[ token , setToken ]=useState("")
-
+   
     async function sendData(e) {
         e.preventDefault(); 
+        let checkSubmit=true;
+        if(name==="")
+       {
+           checkSubmit=false;
+
+       } 
+        if(password==="")
+       {
+            checkSubmit=false;
+ 
+       }
+       if(checkSubmit)
+       {
         const response= await fetch("http://localhost:8000/api/v1/account/rest_login/",{
             method:"POST",
             headers:{"Content-type":"application/json"},
@@ -40,6 +53,10 @@ let login= ()=>{
           console.log("error");
         }  
     }
+    else
+
+    console.log("error");
+    }
 
    return(
         <div class="container">
@@ -52,11 +69,17 @@ let login= ()=>{
            <center><h2  className="signupinHeader"color="blue">Sign In</h2></center>
            <div>
            <TextField required fullWidth id="name"label="username" onChange={(e)=>{
-                setName(e.target.value)}} />   
+                setName(e.target.value)
+                
+                }} />   
+
             </div>
             <br/> <div>
         <TextField required fullWidth id="password" type="password" label="password" onChange={(e)=>{
-                setPass(e.target.value)}}/>
+                setPass(e.target.value)
+               
+                }}/>
+
        </div>
        
            </CardContent>
