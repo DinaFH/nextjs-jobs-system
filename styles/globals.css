@@ -5,7 +5,37 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
-
+.cardd{
+  position: relative;
+  left: 32%;
+  top: 30px;
+}
+.container
+{
+  display:flex;
+}
+.left
+{
+  width:50%;
+  margin-left:3%
+}
+.right
+{
+  width:50%;
+}
+.signupLogo
+{
+  height:80px;
+}
+.signupinImage
+{
+  width:100%;
+  padding:20%;
+}
+.signupinHeader
+{
+  color:rgb(72, 157, 236);
+}
 a {
   color: inherit;
   text-decoration: none;
