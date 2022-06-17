@@ -21,12 +21,14 @@ const JobDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [jobDetails, setJobDetails] = useState({});
   useEffect( () => {
-    toast.info("Fetching job details");
-    api(`/job/detail/${id}`).then(response => {
-      setJobDetails(response);
-      setIsLoading(false);
-      toast.success("Fetched successfully");
-    });
+    if (id) {
+      toast.info("Fetching job details");
+      api(`/job/detail/${id}`).then(response => {
+        setJobDetails(response);
+        setIsLoading(false);
+        toast.success("Fetched successfully");
+      });
+    }
   }, [id]);
   if (isLoading) {
     return <Loader/>

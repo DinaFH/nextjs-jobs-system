@@ -27,7 +27,7 @@ const JobsList = () => {
     return <Loader/>
   }
   return (
-    <Grid container justifyContent={'center'} py={12} spacing={2}>
+    <Grid container justifyContent={'center'} py={6} spacing={2}>
       <Grid item mb={2} xs={12} lg={8} display={"flex"} justifyContent={"center"}>
         <Link href={"/jobs/create"}>
           <Button variant={"contained"}>Create A New Job <AddIcon /></Button>

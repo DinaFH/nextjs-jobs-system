@@ -23,9 +23,10 @@ const JobCard = ({job}) => {
           <Typography mb={1} variant={"body1"}>{job.description}</Typography>
           <Box mb={1} flexDirection={"row"} display={"flex"}>
             <Typography variant={"subtitle1"} mr={1}>Tags:</Typography>
-            {job.Tags.map(tag => <Chip label={tag.name} key={tag.id} variant={"filled"} color={"secondary"} />)}
+            {job.Tags.map(tag => <Chip label={tag.name} key={tag.id} variant={"filled"} color={"secondary"}/>)}
           </Box>
-          <Typography mb={1} variant={"subtitle2"}>Created At: {moment(job.creation_time).format("MM/DD/YYYY hh:mmA")}</Typography>
+          <Typography mb={1} variant={"subtitle2"}>Created
+            At: {moment(job.creation_time).format("MM/DD/YYYY hh:mmA")}</Typography>
           <Link href={`/jobs/${job.id}`}><Button variant={"contained"} color={"primary"}>View Details</Button></Link>
         </Box>
       </Card>

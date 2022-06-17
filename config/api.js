@@ -1,8 +1,8 @@
-import {apiUrl} from "./constants";
+import {apiUrl, USER_TOKEN} from "./constants";
 
 const api = async (url, method = "GET", body = undefined) => {
   try {
-    const token = localStorage.getItem("USER_TOKEN");
+    const token = localStorage.getItem(USER_TOKEN);
     const response = await fetch(`${apiUrl}${url}`, {
       method,
       body,

@@ -12,14 +12,17 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import Link from "next/link";
+import {useContext} from "react";
+import {AppContext} from "../pages/_app";
 
-const pages = ['Sign up', 'Log in', 'About us'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = [{label: 'Sign up', url: 'signup'}, {label: 'Log in', url: 'login'}, {label: 'About us', url: 'about-us'}];
+const settings = [{label: 'Profile', url: 'profile'}, {label: 'Account', url: "profile"}, {label: "Jobs", url: "jobs"}, {label: "Notifications", url: 'notifications'}, {label: 'Dashboard', url: 'dashboard'}, {label: 'Logout', url: 'logout'}];
 
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  const {isAuth} = useContext(AppContext)
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -87,9 +90,11 @@ const Header = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+              {(isAuth ? settings : pages).map((page, index) => (
+                <MenuItem key={index} onClick={handleCloseNavMenu}>
+                  <Link href={page.url}>
+                    <Button>{page.label}</Button>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
@@ -114,14 +119,10 @@ const Header = () => {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
+            {(isAuth ? settings : pages).map((page, index) => (
+              <Link key={index} href={page.url}>
+                <Button>{page.label}</Button>
+              </Link>
             ))}
           </Box>
 
@@ -147,9 +148,11 @@ const Header = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+              {(isAuth ? settings : pages).map((page, index) => (
+                <MenuItem key={index} onClick={handleCloseNavMenu}>
+                  <Link href={page.url}>
+                    <Button>{page.label}</Button>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
