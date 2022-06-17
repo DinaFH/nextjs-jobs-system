@@ -49,11 +49,11 @@ const bull = (
         },
       },
     };
-    const names = [
-      'Django',
-      'React',
-      'Angular',
-       ];  
+    const names = 
+    [  {id:1,value:'Django'},
+      {id:2,value:'React'},
+      {id:3,value:'Angular'},
+     ];  
 let signup= ()=>{
   
   const [tagName, setTagName] = React.useState([]);
@@ -67,10 +67,13 @@ let signup= ()=>{
   const[ history , setHistory ]=useState("")
   const[ address , setAddress ]=useState("")
   const[ dateofbirth , setDateOfBirth ]=useState("")
-  const[ mailNotification , setMailNotification ]=useState(1)
+  const[ mailNotification , setMailNotification ]=useState(true)
+
+  let url="http://localhost:8000/api/v1/account/"
 
  
   const handleChange = (event) => {
+    console.log(event.target.value)
     const {
       target: { value },
     } = event;
@@ -79,10 +82,48 @@ let signup= ()=>{
     );
   };
 
+ function validation()
+ {
+  let checkSubmit=true;
+  console.log(name)
+  if(name==="")
+  {
+    checkSubmit=false;
+  } 
+  else if(password !==confirmPass ||password=="")
+  {
+    checkSubmit=false;
 
+  }
+  else if(email==="")
+  {
+    checkSubmit=false;
+  }
+  else if(type==="developer")
+  {
+    url=url+"signupdeveloper/"
+    console.log(url)
+      if(cv==="" ||dateofbirth==="")
+          checkSubmit=false;
+
+  }
+  else if(type==="recruiter")
+  {
+    url=url+"signuprecruiter/"
+    if(history===""||address==="")
+    {
+      checkSubmit=false;
+    }
+  }
+    return checkSubmit;
+  
+ }
   async function sendData(e) {
     e.preventDefault();  
-   const response= await fetch("http://localhost:8000/api/v1/account/signup",{
+   
+    if(true)
+   {
+    const response= await fetch(url+'signupdeveloper/',{
     method:"POST",
     headers:{"Content-type":"application/json"},
     body: JSON.stringify(
@@ -112,20 +153,25 @@ else{
 
   console.log("error");
 } 
-    
-
-  }
+  
+}
+else
+{
+  console.log("validation error")
+}
+}
       
     return(
       <div className="container">
         <div className="left" >
+        <form onSubmit={sendData}>
+         
       <Card  sx={{ maxWidth: 575}} style={{ Height: '60vh' }}>
 
       <CardContent>
       <center><img className="signupLogo" src="/signup.png"/></center>
       <center><h2  className="signupHeader"color="blue">Sign Up</h2></center>
 
-      <form onSubmit={sendData}>
        <div>
         <TextField required fullWidth id="name"label="username" size="small"  onChange={(e)=>{
                 setName(e.target.value)}} />   
@@ -172,18 +218,11 @@ else{
        <TextField required  fullWidth id="address" size="small" label="address"
        onChange={(e)=>{
         setAddress(e.target.value)}} /><br/>
-       <TextField
-          id="outlined-multiline-flexible"
-          label="History"
-          size="small"
-          multiline
-          fullWidth
-          maxRows={4}
+       <TextField id="outlined-multiline-flexible" label="History" size="small" multiline fullWidth maxRows={4}
           onChange={(e)=>{
             setHistory(e.target.value)}}
        /><br/>
-       <FormControlLabel control={<Checkbox defaultChecked />} label="Allow Mail Notifications" />
-
+     
        </div>
        :
        <div>
@@ -198,14 +237,14 @@ else{
          value={tagName}
          onChange={handleChange}
          input={<OutlinedInput label="Tag" />}
-         renderValue={(selected) => selected.join(', ')}
+         renderValue={(selected) => selected.map(obj=> names[obj - 1].value).join(', ')}
          MenuProps={MenuProps}
        >
          {names.map((name) => (
-           <MenuItem key={name} value={name}>
-             <Checkbox checked={tagName.indexOf(name) > -1} />
-             <ListItemText primary={name} />
-           </MenuItem>
+          <MenuItem key={name.id} value={name.id}>
+          <Checkbox checked={tagName.indexOf(name.id) > -1} />
+          <ListItemText primary={name.value} />
+          </MenuItem>
          ))}
        </Select>
      </FormControl><br/>
@@ -215,6 +254,9 @@ else{
         row
         aria-labelledby="demo-row-radio-buttons-group-label"
         name="row-radio-buttons-group"
+        onChange={(e) => {
+          setGender(e.target.value);
+        }}
        
       >
         <FormControlLabel value="male" control={<Radio />} label="male" />
@@ -224,34 +266,43 @@ else{
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DatePicker
        inputFormat="yyyy-MM-dd"
-        label="Date Of Birth"
+       label="Date Of Birth"
         size="small"
+       
         value={dateofbirth}
-        onChange={(dateValue) => {
-          setDateOfBirth(dateValue);
-        }}
         renderInput={(params) => <TextField {...params} />}
+        onChange={(dateValue) => {
+         let datevalue=dateValue.getFullYear()+"-"+(dateValue.getMonth()+1)+"-"+(dateValue.getDay()+1)
+          setDateOfBirth(datevalue);
+          console.log(datevalue)
+        }}
       />
     </LocalizationProvider><br/>
        <Button variant="text" component="label" color="info">
        {" "}
        Upload your CV
-       <input  id="file" type="file" hidden />
+       <input  id="file" type="file" hidden onChange={(e)=>{
+            setCv(e.target.value)
+       }}/>
      </Button><br/>
-     <FormControlLabel control={<Checkbox defaultChecked />} label="Allow Mail Notifications" />
       </div>
     }
-      </form>
+      <FormControlLabel control={<Checkbox defaultChecked />} label="Allow Mail Notifications" onChange={(e)=>{
+            setMailNotification(!mailNotification)
+            console.log(mailNotification)
+            }} />
+
        </CardContent>
 
       <CardActions>
       <Button variant="contained"type="submit">Sign Up</Button>
       </CardActions>
     </Card>
+    </form>
     </div>
 
     <div className="right">
-    <img className="signupImage" src="/signupimage.png"/>
+    <img className="signupinImage" src="/signupimage.png"/>
     </div>
 
     </div>
