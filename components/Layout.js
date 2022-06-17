@@ -3,13 +3,13 @@ import Header from './Header';
 import Footer from './Footer';
 
 function Layout({children}) {
-  return (  
+  return (
     <div className="content">
       <Header/>
       {children}
-      <Footer/>
+      {/*<Footer/>*/}
     </div>
   );
 }
- 
+
 export default Layout;
