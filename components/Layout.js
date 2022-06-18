@@ -1,7 +1,7 @@
 
 import Header from './Header';
 
-function Layout({children}) {
+const Layout = ({children}) => {
   return (
     <div className="content">
       <Header/>

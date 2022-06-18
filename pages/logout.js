@@ -5,10 +5,11 @@ import {Alert, AlertTitle} from "@mui/material";
 import {USER_TOKEN} from "../config/constants";
 
 const Logout = () => {
-  const {setIsAuth} = useContext(AppContext);
+  const {logout, getLoginData} = useContext(AppContext);
   useEffect(() => {
     localStorage.removeItem(USER_TOKEN);
-    setIsAuth(false);
+    logout();
+    getLoginData();
   }, []);
   return (
     <Box height={300} display={"flex"} justifyContent={"center"} alignItems={"center"}>
