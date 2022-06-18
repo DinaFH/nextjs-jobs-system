@@ -43,7 +43,7 @@ function MyApp({ Component, pageProps }) {
     }
   }, []);
   useLayoutEffect(() => {
-    if (router.pathname !== '/login' && router.pathname !== '/signup' && router.pathname !== '/') {
+    if (router.pathname !== '/login' && router.pathname !== '/signup' && router.pathname !== '/' && !isAuth) {
       location.href = '/'
     }
   }, [router.pathname]);
