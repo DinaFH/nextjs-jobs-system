@@ -50,6 +50,14 @@ const JobDetails = () => {
       toast.error(err?.message || 'Error');
     });
   }
+  const finish = async () => {
+    setIsLoading(true);
+    toast.info("Finishing Job...");
+    api(`/job/update/${id}`).then(() => {
+      toast.success("Success.");
+      fetchJobDetails();
+    });
+  }
   const assign = async (developerId) => {
     setIsLoading(true);
     toast.info("Assigning...");
@@ -95,7 +103,11 @@ const JobDetails = () => {
                   {jobDetails?.accepted_developer?.id === userId ? 'Approved' : 'Applied'}
                 </Alert>
               ) : (
-                <Button variant={"contained"} onClick={apply}>Apply <EditIcon/> </Button>
+                jobDetails?.status !== 'Finished' ? (
+                  <Button variant={"contained"} onClick={apply}>Apply <EditIcon/> </Button>
+                ) : (
+                  <Alert severity={"info"}>Finished</Alert>
+                )
               )
             ) : (userId === jobDetails?.created_by?.id ?
                 <Link href={`${id}/edit`}>
@@ -121,6 +133,9 @@ const JobDetails = () => {
             <Box display={"flex"} alignItems={"center"} px={3} py={1} justifyContent={"space-evenly"}>
               <Typography>Accepted Developer</Typography>
               <Typography variant={"h4"}>{jobDetails.accepted_developer.username}</Typography>
+              {(userRole === 'recruiter' && userId === jobDetails?.created_by?.id && jobDetails.status === 'Inprogress') ? (
+                <Button color={"secondary"} onClick={finish} variant={"contained"}>Finish Job</Button>
+              ) : null}
             </Box>
           </Card>
         </Grid>
