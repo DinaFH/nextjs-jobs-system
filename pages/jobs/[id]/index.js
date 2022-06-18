@@ -39,7 +39,6 @@ const JobDetails = () => {
     setIsLoading(true);
     toast.info("Applying...");
     api(`/job/apply/${id}`).then((res) => {
-      console.log(res)
       if (res?.detail) {
         toast.error(res.detail)
       } else {
