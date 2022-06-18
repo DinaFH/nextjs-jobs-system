@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {Chip} from "@mui/material";
+import {Alert, Chip} from "@mui/material";
 import Link from "next/link";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
@@ -32,6 +32,15 @@ const JobDetails = () => {
       });
     }
   }, [id]);
+  const apply = async () => {
+    setIsLoading(true);
+    toast.info("Applying...");
+    api(`/job/apply/${id}`).then(() => {
+      setJobDetails(previous => ({...previous, applied_developer: [...previous.applied_developer, {id: userId}]}))
+      setIsLoading(false);
+      toast.success("Success.");
+    });
+  }
   if (isLoading) {
     return <Loader/>
   }
@@ -64,7 +73,13 @@ const JobDetails = () => {
               applicants: {(jobDetails?.applied_developer || []).length}</Typography>
             <Typography mb={1} variant={"subtitle2"}>Status: {jobDetails.status}</Typography>
             {userRole === 'developer' ? (
-              <Button variant={"contained"}>Apply <EditIcon/> </Button>
+              jobDetails.applied_developer.find(({id}) => id === userId) ? (
+                <Alert severity={"success"}>
+                  Applied
+                </Alert>
+              ) : (
+                <Button variant={"contained"} onClick={apply}>Apply <EditIcon/> </Button>
+              )
             ) : (userId === jobDetails?.created_by?.id ?
                 <Link href={`${id}/edit`}>
                   <Button variant={"contained"}>Edit <EditIcon/> </Button>

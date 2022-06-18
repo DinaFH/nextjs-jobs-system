@@ -12,19 +12,22 @@ export const AppContext = createContext({
 })
 function MyApp({ Component, pageProps }) {
   const [isAuth, setIsAuth] = useState(false);
-  const [userRole, setUserRole] = useState('');
+  const [userData, setUserData] = useState({
+    userRole: '',
+    userId: 0
+  });
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
       setIsAuth(isLoggedIn());
       if (isLoggedIn()) {
         api(`/api/v1/account/profile`).then(response => {
-          setUserRole(response.type);
+          setUserData({userRole: response.type, userId: response.id});
         });
       }
     }
   }, []);
   return (
-    <AppContext.Provider value={{isAuth, setIsAuth, userRole}}>
+    <AppContext.Provider value={{isAuth, setIsAuth, ...userData}}>
       <Layout>
         <Component {...pageProps} />
         <ToastContainer />
