@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -11,15 +11,17 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import api from "../config/api";
+import {toast} from "react-toastify";
+import {USER_TOKEN} from "../config/constants";
+import {useRouter} from "next/router";
 
 const label = {inputProps: {'aria-label': 'Checkbox demo'}};
 const bull = (
@@ -54,97 +56,69 @@ const bull = (
 //       {id:3,value:'Angular'},
 //      ];
 const Signup = () => {
-
-  const [tagName, setTagName] = useState([]);
   const [name, setName] = useState("")
   const [password, setPass] = useState("")
   const [confirmPass, setPassConfirm] = useState("")
   const [email, setEmail] = useState("")
-  const [type, setType] = useState("")
-  const [gender, setGender] = useState("")
-  const [cv, setCv] = useState("")
+  const [type, setType] = useState("developer")
+  const [gender, setGender] = useState("m")
+  const [cv, setCv] = useState(null)
   const [history, setHistory] = useState("")
   const [address, setAddress] = useState("")
   const [dateofbirth, setDateOfBirth] = useState("")
   const [mailNotification, setMailNotification] = useState(true)
-
-  let url = "http://localhost:8000/api/v1/account/"
-
-
-  const handleChange = (event) => {
-    console.log(event.target.value)
-    const {
-      target: {value},
-    } = event;
-    setTagName(
-      typeof value === 'string' ? value.split(',') : value,
-    );
-  };
-
-  function validation() {
-    let checkSubmit = true;
-    console.log(name)
-    if (name === "") {
-      checkSubmit = false;
-    } else if (password !== confirmPass || password === "") {
-      checkSubmit = false;
-
-    } else if (email === "") {
-      checkSubmit = false;
-    } else if (type === "developer") {
-      url = url + "signupdeveloper/"
-      console.log(url)
-      if (cv === "" || dateofbirth === "")
-        checkSubmit = false;
-
-    } else if (type === "recruiter") {
-      url = url + "signuprecruiter/"
-      if (history === "" || address === "") {
-        checkSubmit = false;
-      }
-    }
-    return checkSubmit;
-
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const router = useRouter();
+  const handleSelectTags = e => {
+    setSelectedTags(e?.target?.value);
   }
 
   async function sendData(e) {
     e.preventDefault();
-
-    if (true) {
-      const response = await fetch(url + 'signupdeveloper/', {
-        method: "POST",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify(
-          {
-            username: name,
-            password: password,
-            confirm_password: confirmPass,
-            email: email,
-            type: type,
-            gender: gender,
-            cv: cv,
-            history: history,
-            address: address,
-            date_of_birth: dateofbirth,
-            allow_mail_notification: mailNotification
-          }
-        )
-      })
-
-      if (response.ok) {
-        let data = await response.text();
-        console.log(data);
-
-      } else {
-
-        console.log("error");
+    const formData = new FormData();
+    formData.append('username', name)
+    formData.append('password', password)
+    formData.append('password_confirm', confirmPass)
+    formData.append('email', email)
+    formData.append('type', type)
+    formData.append('gender', gender)
+    formData.append('allow_mail_notification', mailNotification)
+    formData.append('date_of_birth', dateofbirth)
+    if (type === 'developer') {
+      formData.append('cv', cv)
+      for (let tag of selectedTags) {
+        formData.append("tags", tag);
       }
-
     } else {
-      console.log("validation error")
+      formData.append('history', history)
+      formData.append('address', address)
     }
+    toast.info("Creating your account...");
+    await api(`/api/v1/account/${type === 'developer' ? 'signupdeveloper' : 'signuprecruiter'}`, "POST", formData)
+    toast.success("Account created successfully");
+    toast.warn("You will be able to login after admin activates your account");
+    // const response = await api("/api/v1/account/rest_login", "POST", JSON.stringify({
+    //   username: name, password
+    // }), {
+    //   'content-type': 'application/json'
+    // });
+    // if (response?.token) {
+    //   toast.success("Logged in successfully");
+    //   localStorage.setItem(USER_TOKEN, response.token);
+    //   await router.push('/');
+    // } else {
+    //   toast.error("Invalid Credentials");
+    // }
+
   }
 
+  useEffect(() => {
+    (async () => {
+      const tagsResponse = await api(`/tag/list`)
+      setTags(tagsResponse);
+    })();
+  }, []);
   return (
     <div className="container">
       <div className="left">
@@ -187,22 +161,15 @@ const Signup = () => {
                   name="row-radio-buttons-group"
                   defaultValue="developer"
                   onChange={(e) => {
-
-                    if (e.target.value === 'recruiter') {
-                      setType(true)
-                      console.log(type)
-                    } else
-                      setType(false)
-
-                  }
-                  }
+                    setType(e.target.value);
+                  }}
                 >
                   <FormControlLabel value="developer" control={<Radio/>} label="Developer"/>
                   <FormControlLabel value="recruiter" control={<Radio/>} label="Recruiter"/>
                 </RadioGroup>
               </FormControl>
               {
-                type ?
+                type === 'recruiter' ?
                   <div>
                     <TextField required fullWidth id="address" size="small" label="address"
                                onChange={(e) => {
@@ -219,31 +186,32 @@ const Signup = () => {
                   :
                   <div>
 
-                    <FormControl sx={{m: 1, width: 300}}>
-                      <InputLabel id="demo-multiple-checkbox-label tag">Tag</InputLabel>
+                    <FormControl fullWidth={true}>
+                      <InputLabel id="tags-name-label">Tags</InputLabel>
                       <Select
-                        labelId="demo-multiple-checkbox-label"
-                        id="demo-multiple-checkbox"
+                        onChange={handleSelectTags}
+                        fullWidth={true}
+                        labelId="tags-name-label"
+                        id="tags-name"
                         multiple
-                        size="small"
-                        value={tagName}
-                        onChange={handleChange}
-                        input={<OutlinedInput label="Tag"/>}
-                        renderValue={(selected) => selected.map(obj => names[obj - 1].value).join(', ')}
-                        MenuProps={MenuProps}
-                      >
-                        {names.map((name) => (
-                          <MenuItem key={name.id} value={name.id}>
-                            <Checkbox checked={tagName.indexOf(name.id) > -1}/>
-                            <ListItemText primary={name.value}/>
+                        variant={"standard"}
+                        value={selectedTags}
+                        label={"Tags"}>
+                        {tags.map((tag) => (
+                          <MenuItem
+                            key={tag.id}
+                            value={tag.id}
+                          >
+                            {tag.name}
                           </MenuItem>
                         ))}
                       </Select>
-                    </FormControl><br/>
+                    </FormControl>
                     <FormControl>
                       <FormLabel id="demo-row-radio-buttons-group-label gender">Gender</FormLabel>
                       <RadioGroup
                         row
+                        value={gender}
                         aria-labelledby="demo-row-radio-buttons-group-label"
                         name="row-radio-buttons-group"
                         onChange={(e) => {
@@ -251,34 +219,33 @@ const Signup = () => {
                         }}
 
                       >
-                        <FormControlLabel value="male" control={<Radio/>} label="male"/>
-                        <FormControlLabel value="female" control={<Radio/>} label="female"/>
+                        <FormControlLabel value="m" control={<Radio/>} label="male"/>
+                        <FormControlLabel value="f" control={<Radio/>} label="female"/>
                       </RadioGroup>
-                    </FormControl><br/>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <DatePicker
-                        inputFormat="yyyy-MM-dd"
-                        label="Date Of Birth"
-                        size="small"
-
-                        value={dateofbirth}
-                        renderInput={(params) => <TextField {...params} />}
-                        onChange={(dateValue) => {
-                          let datevalue = dateValue.getFullYear() + "-" + (dateValue.getMonth() + 1) + "-" + (dateValue.getDay() + 1)
-                          setDateOfBirth(datevalue);
-                          console.log(datevalue)
-                        }}
-                      />
-                    </LocalizationProvider><br/>
+                    </FormControl>
                     <Button variant="text" component="label" color="info">
-                      {" "}
                       Upload your CV
                       <input id="file" type="file" hidden onChange={(e) => {
-                        setCv(e.target.value)
+                        setCv(e.target.files[0])
                       }}/>
-                    </Button><br/>
+                    </Button>
                   </div>
               }
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  inputFormat="yyyy-MM-dd"
+                  label="Date Of Birth"
+                  size="small"
+
+                  value={dateofbirth}
+                  renderInput={(params) => <TextField {...params} />}
+                  onChange={(dateValue) => {
+                    let datevalue = dateValue.getFullYear() + "-" + (dateValue.getMonth() + 1) + "-" + (dateValue.getDay() + 1)
+                    setDateOfBirth(datevalue);
+                    console.log(datevalue)
+                  }}
+                />
+              </LocalizationProvider>
               <FormControlLabel control={<Checkbox defaultChecked/>} label="Allow Mail Notifications" onChange={(e) => {
                 setMailNotification(!mailNotification)
                 console.log(mailNotification)

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -8,10 +8,12 @@ import api from "../config/api";
 import {USER_TOKEN} from "../config/constants";
 import {useRouter} from "next/router";
 import {toast} from "react-toastify";
+import {AppContext} from "./_app";
 
 const Login = () => {
   const [name, setName] = useState("")
   const [password, setPass] = useState("")
+  const {getLoginData} = useContext(AppContext);
   const router = useRouter();
 
   async function sendData(e) {
@@ -27,13 +29,14 @@ const Login = () => {
     if (checkSubmit) {
       toast.info("Logging in...");
       const response = await api("/api/v1/account/rest_login", "POST", JSON.stringify({
-        username: name, password: password
+        username: name, password
       }), {
         'content-type': 'application/json'
       });
       if (response?.token) {
         toast.success("Logged in successfully");
         localStorage.setItem(USER_TOKEN, response.token);
+        getLoginData();
         await router.push('/');
       } else {
         toast.error("Invalid Credentials");

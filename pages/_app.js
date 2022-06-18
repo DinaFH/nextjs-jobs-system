@@ -8,7 +8,10 @@ import {isLoggedIn} from "../helpers/functions";
 import api from "../config/api";
 export const AppContext = createContext({
   isAuth: false,
-  setIsAuth: (value) => {}
+  setIsAuth: (value) => {},
+  getLoginData: () => {},
+  userRole: '',
+  userId: 0,
 })
 function MyApp({ Component, pageProps }) {
   const [isAuth, setIsAuth] = useState(false);
@@ -16,18 +19,22 @@ function MyApp({ Component, pageProps }) {
     userRole: '',
     userId: 0
   });
+  const getLoginData = () => {
+    setIsAuth(isLoggedIn());
+    if (isLoggedIn()) {
+      api(`/api/v1/account/profile`).then(response => {
+        setUserData({userRole: response.type, userId: response.id});
+      });
+    }
+  }
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
-      setIsAuth(isLoggedIn());
-      if (isLoggedIn()) {
-        api(`/api/v1/account/profile`).then(response => {
-          setUserData({userRole: response.type, userId: response.id});
-        });
-      }
+      getLoginData();
     }
   }, []);
+
   return (
-    <AppContext.Provider value={{isAuth, setIsAuth, ...userData}}>
+    <AppContext.Provider value={{isAuth, setIsAuth, ...userData, getLoginData}}>
       <Layout>
         <Component {...pageProps} />
         <ToastContainer />
