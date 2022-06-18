@@ -5,15 +5,15 @@ import Box from "@mui/material/Box";
 import {Chip} from "@mui/material";
 import Link from "next/link";
 import Button from "@mui/material/Button";
+import moment from "moment";
 
 const NotificationCard = ({notification}) => {
   return (
     <Grid item lg={8} xs={12}>
       <Card variant={"outlined"}>
         <Box p={2}>
-          <Typography variant={"h4"}>title</Typography>
-          <Typography mb={1} variant={"body1"}>description</Typography>
-          <Typography variant={"subtitle1"} mr={1}>1999-09-09</Typography>
+          <Typography variant={"h4"}>{moment(notification.created_at).format("MM-DD-YYYY hh:mmA")}</Typography>
+          <Typography mb={1} variant={"body1"}>{notification.message}</Typography>
         </Box>
       </Card>
     </Grid>
