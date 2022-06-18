@@ -1,7 +1,7 @@
 import Layout from '../components/Layout';
 import '../styles/globals.css' ;
 
-import {toast, ToastContainer} from 'react-toastify';
+import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {createContext, useEffect, useLayoutEffect, useState} from "react";
 import {isLoggedIn} from "../helpers/functions";
@@ -43,10 +43,8 @@ function MyApp({ Component, pageProps }) {
     }
   }, []);
   useLayoutEffect(() => {
-    if (router.pathname !== '/login' && router.pathname !== '/signup') {
-      (async() => {
-        await router.push('/')
-      })()
+    if (router.pathname !== '/login' && router.pathname !== '/signup' && router.pathname !== '/') {
+      location.href = '/'
     }
   }, [router.pathname]);
   return (
