@@ -23,7 +23,7 @@ const pages = [{label: 'Sign up', url: '/signup'}, {label: 'Log in', url: '/logi
 const settings = [{label: 'Profile', url: '/profile'}, {label: "Jobs", url: "/jobs"}, {
   label: "Notifications",
   url: '/notifications'
-}, {label: 'Dashboard', url: '/dashboard'}, {label: 'Logout', url: '/logout'}];
+}, {label: 'Users', url: '/users'}, {label: 'Logout', url: '/logout'}];
 
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
