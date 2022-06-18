@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import CardMedia from "@mui/material/CardMedia";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
+import {apiUrl} from "../../config/constants";
 
 const JobCard = ({job}) => {
   return (
@@ -15,7 +16,7 @@ const JobCard = ({job}) => {
         <CardMedia
           component="img"
           height="200"
-          image="https://picsum.photos/200/200"
+          image={`${apiUrl}${job.banner_image}`}
           alt="Job image"
         />
         <Box p={2}>

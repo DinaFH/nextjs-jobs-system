@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Grid from "@mui/material/Grid";
 import JobCard from "../../components/jobs/JobCard";
 import TextField from "@mui/material/TextField";
@@ -7,18 +7,22 @@ import {toast} from "react-toastify";
 import Button from "@mui/material/Button";
 import Link from "next/link";
 import AddIcon from '@mui/icons-material/Add'
-import {apiUrl} from "../../config/constants";
 import api from "../../config/api";
-import {CircularProgress} from "@mui/material";
 import Loader from "../../components/Loader";
+import {AppContext} from "../_app";
 
 const JobsList = () => {
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  useEffect( () => {
+  const [query, setQuery] = useState('');
+  const {userRole} = useContext(AppContext);
+  useEffect(() => {
     toast.info("Fetching jobs list");
     api(`/job/list`).then(response => {
-      setJobs(response?.jobs || []);
+      setJobs((response?.jobs || []).map(job => ({
+        ...job,
+        tagsFilter: job.Tags.map((tag) => tag.name).join(',').toLowerCase()
+      })));
       setIsLoading(false);
       toast.success("Fetched successfully");
     });
@@ -26,13 +30,16 @@ const JobsList = () => {
   if (isLoading) {
     return <Loader/>
   }
+  const filteredJobs = query === '' ? jobs : jobs.filter(job => job.name.toLowerCase().includes(query) || job.tagsFilter.includes(query));
   return (
     <Grid container justifyContent={'center'} py={6} spacing={2}>
-      <Grid item mb={2} xs={12} lg={8} display={"flex"} justifyContent={"center"}>
-        <Link href={"/jobs/create"}>
-          <Button variant={"contained"}>Create A New Job <AddIcon /></Button>
-        </Link>
-      </Grid>
+      {userRole === 'recruiter' ?
+        <Grid item mb={2} xs={12} lg={8} display={"flex"} justifyContent={"center"}>
+          <Link href={"/jobs/create"}>
+            <Button variant={"contained"}>Create A New Job <AddIcon/></Button>
+          </Link>
+        </Grid>
+        : null}
       <Grid item mb={2} xs={12} lg={8}>
         <Box display={"flex"} justifyContent={"center"}>
           <TextField
@@ -41,10 +48,12 @@ const JobsList = () => {
             InputProps={{
               type: 'search',
             }}
+            value={query}
+            onChange={e => setQuery(e.target.value.toLowerCase().trim().replaceAll(',', ''))}
           />
         </Box>
       </Grid>
-      {jobs.map((job, index) => <JobCard key={index} job={job} />)}
+      {filteredJobs.map((job, index) => <JobCard key={index} job={job}/>)}
     </Grid>
   );
 }
