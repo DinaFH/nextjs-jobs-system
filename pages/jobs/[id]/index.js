@@ -22,23 +22,41 @@ const JobDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [jobDetails, setJobDetails] = useState({});
   const {userRole, userId} = useContext(AppContext);
+  const fetchJobDetails = () => {
+    toast.info("Fetching job details");
+    api(`/job/detail/${id}`).then(response => {
+      setJobDetails(response);
+      setIsLoading(false);
+      toast.success("Fetched successfully");
+    });
+  }
   useEffect(() => {
     if (id) {
-      toast.info("Fetching job details");
-      api(`/job/detail/${id}`).then(response => {
-        setJobDetails(response);
-        setIsLoading(false);
-        toast.success("Fetched successfully");
-      });
+      fetchJobDetails();
     }
   }, [id]);
   const apply = async () => {
     setIsLoading(true);
     toast.info("Applying...");
-    api(`/job/apply/${id}`).then(() => {
-      setJobDetails(previous => ({...previous, applied_developer: [...previous.applied_developer, {id: userId}]}))
+    api(`/job/apply/${id}`).then((res) => {
+      console.log(res)
+      if (res?.detail) {
+        toast.error(res.detail)
+      } else {
+        setJobDetails(previous => ({...previous, applied_developer: [...previous.applied_developer, {id: userId}]}))
+        toast.success("Success.");
+      }
       setIsLoading(false);
+    }).catch(err => {
+      toast.error(err?.message || 'Error');
+    });
+  }
+  const assign = async (developerId) => {
+    setIsLoading(true);
+    toast.info("Assigning...");
+    api(`/job/assign/${id}/${developerId}`).then(() => {
       toast.success("Success.");
+      fetchJobDetails();
     });
   }
   if (isLoading) {
@@ -46,7 +64,7 @@ const JobDetails = () => {
   }
   return (
     <Grid container justifyContent={"center"} py={3}>
-      <Grid item lg={8} xs={12}>
+      <Grid item lg={8} xs={12} mb={2}>
         <Card variant={"outlined"}>
           <CardMedia
             component="img"
@@ -75,7 +93,7 @@ const JobDetails = () => {
             {userRole === 'developer' ? (
               jobDetails.applied_developer.find(({id}) => id === userId) ? (
                 <Alert severity={"success"}>
-                  Applied
+                  {jobDetails?.accepted_developer?.id === userId ? 'Approved' : 'Applied'}
                 </Alert>
               ) : (
                 <Button variant={"contained"} onClick={apply}>Apply <EditIcon/> </Button>
@@ -89,6 +107,25 @@ const JobDetails = () => {
           </Box>
         </Card>
       </Grid>
+      {userRole === 'recruiter' && userId === jobDetails?.created_by?.id && !jobDetails.accepted_developer ? (
+        <Grid item lg={8} xs={12}>
+          {jobDetails.applied_developer.map(developer => <Card mb={2} variant={"outlined"} key={developer.id}>
+            <Box display={"flex"} alignItems={"center"} px={3} justifyContent={"space-evenly"} py={1}>
+              <Typography>{developer.username}</Typography>
+              <Button onClick={() => assign(developer.id)} variant={"contained"} color={"secondary"}>Assign</Button>
+            </Box>
+          </Card>)}
+        </Grid>
+      ) : (jobDetails?.accepted_developer ? (
+        <Grid item lg={8} xs={12}>
+          <Card variant={"outlined"} key={jobDetails.accepted_developer.id}>
+            <Box display={"flex"} alignItems={"center"} px={3} py={1} justifyContent={"space-evenly"}>
+              <Typography>Accepted Developer</Typography>
+              <Typography variant={"h4"}>{jobDetails.accepted_developer.username}</Typography>
+            </Box>
+          </Card>
+        </Grid>
+      ) : null)}
     </Grid>
   )
 }

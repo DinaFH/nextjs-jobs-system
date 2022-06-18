@@ -13,7 +13,7 @@ const api = async (url, method = "GET", body = undefined, headers = {}) => {
     });
     return response.json();
   } catch (e) {
-    return e;
+    throw e;
   }
 }
 export default api;
